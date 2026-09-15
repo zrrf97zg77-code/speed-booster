@@ -1,5 +1,5 @@
--- Mobile Camera Speed Slider GUI
--- Works with Delta / most executors. Paste and execute.
+-- Mobile Camera Speed Slider GUI (Direct Camera Method)
+-- Works even when UserSettings is blocked
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -17,7 +17,6 @@ screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Protect if executor supports it
 pcall(function()
     if syn and syn.protect_gui then syn.protect_gui(screenGui) end
     if protect_gui then protect_gui(screenGui) end
@@ -25,11 +24,8 @@ end)
 
 screenGui.Parent = playerGui
 
--- ============================================================
--- TOGGLE BUTTON (floating)
--- ============================================================
+-- Toggle button
 local toggleBtn = Instance.new("TextButton")
-toggleBtn.Name = "ToggleBtn"
 toggleBtn.Size = UDim2.new(0, 50, 0, 50)
 toggleBtn.Position = UDim2.new(0, 20, 0.4, 0)
 toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
@@ -42,39 +38,36 @@ toggleBtn.BorderSizePixel = 0
 toggleBtn.Active = true
 toggleBtn.Parent = screenGui
 
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(1, 0)
-toggleCorner.Parent = toggleBtn
+local tc = Instance.new("UICorner")
+tc.CornerRadius = UDim.new(1, 0)
+tc.Parent = toggleBtn
 
-local toggleStroke = Instance.new("UIStroke")
-toggleStroke.Color = Color3.fromRGB(80, 180, 255)
-toggleStroke.Thickness = 2
-toggleStroke.Transparency = 0.3
-toggleStroke.Parent = toggleBtn
+local ts = Instance.new("UIStroke")
+ts.Color = Color3.fromRGB(80, 180, 255)
+ts.Thickness = 2
+ts.Transparency = 0.3
+ts.Parent = toggleBtn
 
--- ============================================================
--- MAIN PANEL
--- ============================================================
+-- Panel
 local panel = Instance.new("Frame")
-panel.Name = "Panel"
 panel.Size = UDim2.new(0, 260, 0, 150)
 panel.Position = UDim2.new(0.5, -130, 0, 60)
 panel.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 panel.BackgroundTransparency = 0.1
 panel.BorderSizePixel = 0
 panel.Active = true
-panel.Visible = false -- hidden until toggle pressed
+panel.Visible = false
 panel.Parent = screenGui
 
-local panelCorner = Instance.new("UICorner")
-panelCorner.CornerRadius = UDim.new(0, 10)
-panelCorner.Parent = panel
+local pc = Instance.new("UICorner")
+pc.CornerRadius = UDim.new(0, 10)
+pc.Parent = panel
 
-local panelStroke = Instance.new("UIStroke")
-panelStroke.Color = Color3.fromRGB(80, 180, 255)
-panelStroke.Thickness = 2
-panelStroke.Transparency = 0.3
-panelStroke.Parent = panel
+local ps = Instance.new("UIStroke")
+ps.Color = Color3.fromRGB(80, 180, 255)
+ps.Thickness = 2
+ps.Transparency = 0.3
+ps.Parent = panel
 
 -- Title
 local title = Instance.new("TextLabel")
@@ -98,34 +91,31 @@ valueLabel.TextScaled = true
 valueLabel.Font = Enum.Font.GothamBold
 valueLabel.Parent = panel
 
--- Slider track
+-- Track
 local track = Instance.new("Frame")
-track.Name = "Track"
 track.Size = UDim2.new(1, -40, 0, 10)
 track.Position = UDim2.new(0, 20, 0, 78)
 track.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
 track.BorderSizePixel = 0
 track.Parent = panel
 
-local trackCorner = Instance.new("UICorner")
-trackCorner.CornerRadius = UDim.new(1, 0)
-trackCorner.Parent = track
+local trc = Instance.new("UICorner")
+trc.CornerRadius = UDim.new(1, 0)
+trc.Parent = track
 
 -- Fill
 local fill = Instance.new("Frame")
-fill.Name = "Fill"
 fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
 fill.BorderSizePixel = 0
 fill.Parent = track
 
-local fillCorner = Instance.new("UICorner")
-fillCorner.CornerRadius = UDim.new(1, 0)
-fillCorner.Parent = fill
+local fc = Instance.new("UICorner")
+fc.CornerRadius = UDim.new(1, 0)
+fc.Parent = fill
 
 -- Knob
 local knob = Instance.new("Frame")
-knob.Name = "Knob"
 knob.Size = UDim2.new(0, 22, 0, 22)
 knob.AnchorPoint = Vector2.new(0.5, 0.5)
 knob.Position = UDim2.new(0, 0, 0.5, 0)
@@ -133,37 +123,37 @@ knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 knob.BorderSizePixel = 0
 knob.Parent = track
 
-local knobCorner = Instance.new("UICorner")
-knobCorner.CornerRadius = UDim.new(1, 0)
-knobCorner.Parent = knob
+local kc = Instance.new("UICorner")
+kc.CornerRadius = UDim.new(1, 0)
+kc.Parent = knob
 
-local knobStroke = Instance.new("UIStroke")
-knobStroke.Color = Color3.fromRGB(80, 180, 255)
-knobStroke.Thickness = 2
-knobStroke.Parent = knob
+local ks = Instance.new("UIStroke")
+ks.Color = Color3.fromRGB(80, 180, 255)
+ks.Thickness = 2
+ks.Parent = knob
 
 -- Range labels
-local minLabel = Instance.new("TextLabel")
-minLabel.Text = "1x"
-minLabel.Size = UDim2.new(0, 40, 0, 20)
-minLabel.Position = UDim2.new(0, 10, 0, 100)
-minLabel.BackgroundTransparency = 1
-minLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-minLabel.TextScaled = true
-minLabel.Font = Enum.Font.Gotham
-minLabel.Parent = panel
+local minL = Instance.new("TextLabel")
+minL.Text = "1x"
+minL.Size = UDim2.new(0, 40, 0, 20)
+minL.Position = UDim2.new(0, 10, 0, 100)
+minL.BackgroundTransparency = 1
+minL.TextColor3 = Color3.fromRGB(180, 180, 180)
+minL.TextScaled = true
+minL.Font = Enum.Font.Gotham
+minL.Parent = panel
 
-local maxLabel = Instance.new("TextLabel")
-maxLabel.Text = "10x"
-maxLabel.Size = UDim2.new(0, 40, 0, 20)
-maxLabel.Position = UDim2.new(1, -50, 0, 100)
-maxLabel.BackgroundTransparency = 1
-maxLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-maxLabel.TextScaled = true
-maxLabel.Font = Enum.Font.Gotham
-maxLabel.Parent = panel
+local maxL = Instance.new("TextLabel")
+maxL.Text = "5x"
+maxL.Size = UDim2.new(0, 40, 0, 20)
+maxL.Position = UDim2.new(1, -50, 0, 100)
+maxL.BackgroundTransparency = 1
+maxL.TextColor3 = Color3.fromRGB(180, 180, 180)
+maxL.TextScaled = true
+maxL.Font = Enum.Font.Gotham
+maxL.Parent = panel
 
--- Reset button
+-- Reset
 local resetBtn = Instance.new("TextButton")
 resetBtn.Text = "Reset"
 resetBtn.Size = UDim2.new(0, 80, 0, 26)
@@ -175,56 +165,63 @@ resetBtn.Font = Enum.Font.GothamBold
 resetBtn.BorderSizePixel = 0
 resetBtn.Parent = panel
 
-local resetCorner = Instance.new("UICorner")
-resetCorner.CornerRadius = UDim.new(0, 6)
-resetCorner.Parent = resetBtn
+local rc = Instance.new("UICorner")
+rc.CornerRadius = UDim.new(0, 6)
+rc.Parent = resetBtn
 
--- ============================================================
--- TOGGLE LOGIC
--- ============================================================
+-- Toggle
 toggleBtn.MouseButton1Click:Connect(function()
     panel.Visible = not panel.Visible
 end)
 
 -- ============================================================
--- CAMERA BOOST LOGIC
+-- CAMERA BOOST - DIRECT ROTATION
 -- ============================================================
-local camera = workspace.CurrentCamera
 local MIN_MULT = 1.0
-local MAX_MULT = 10.0
+local MAX_MULT = 5.0
 local currentMult = 1.0
-
--- Try the UserSettings method first (cleaner)
-local UserSettingsOK = pcall(function()
-    local US = UserSettings()
-    local GS = US.GameSettings
-    -- store originals
-    _G.__origTouch = GS.TouchCameraSensitivity
-    _G.__origMouse = GS.MouseSensitivity
-    _G.__origGamepad = GS.GamepadCameraSensitivity
-end)
 
 local function applySensitivity(mult)
     currentMult = mult
     valueLabel.Text = string.format("%.1fx", mult)
-
-    -- Update slider UI
     local t = (mult - MIN_MULT) / (MAX_MULT - MIN_MULT)
     fill.Size = UDim2.new(t, 0, 1, 0)
     knob.Position = UDim2.new(t, 0, 0.5, 0)
-
-    -- Apply via UserSettings if available
-    if UserSettingsOK then
-        pcall(function()
-            local GS = UserSettings().GameSettings
-            GS.TouchCameraSensitivity = (_G.__origTouch or 1) * mult
-            GS.MouseSensitivity = (_G.__origMouse or 1) * mult
-            GS.GamepadCameraSensitivity = (_G.__origGamepad or 1) * mult
-        end)
-    end
 end
 
 applySensitivity(1.0)
+
+-- Hook camera rotation directly
+-- We listen for the raw mouse/touch delta and multiply the camera rotation
+local cam = workspace.CurrentCamera
+
+UserInputService.InputChanged:Connect(function(input)
+    if currentMult <= 1.01 then return end
+
+    local isMouse = input.UserInputType == Enum.UserInputType.MouseMovement
+    local isTouch = input.UserInputType == Enum.UserInputType.Touch
+
+    if isMouse or isTouch then
+        local delta = input.Delta
+        if delta.Magnitude < 0.5 then return end
+
+        -- Extra rotation on top of what the game already applies
+        -- Wait a frame so the game's own rotation happens first
+        RunService.RenderStepped:Wait()
+
+        local cam = workspace.CurrentCamera
+        if cam then
+            local extra = (currentMult - 1.0)
+            local rotY = math.rad(-delta.X * extra * 0.25)
+            local rotX = math.rad(-delta.Y * extra * 0.25)
+
+            local cf = cam.CFrame
+            cf = cf * CFrame.Angles(0, rotY, 0)
+            cf = cf * CFrame.Angles(rotX, 0, 0)
+            cam.CFrame = cf
+        end
+    end
+end)
 
 -- ============================================================
 -- SLIDER INPUT
@@ -232,15 +229,14 @@ applySensitivity(1.0)
 local dragging = false
 
 local function updateFromInput(input)
-    local trackPos = track.AbsolutePosition
-    local trackSize = track.AbsoluteSize
-    local relX = input.Position.X - trackPos.X
-    local t = math.clamp(relX / trackSize.X, 0, 1)
-    local mult = MIN_MULT + t * (MAX_MULT - MIN_MULT)
-    applySensitivity(mult)
+    local tp = track.AbsolutePosition
+    local tsz = track.AbsoluteSize
+    local relX = input.Position.X - tp.X
+    local t = math.clamp(relX / tsz.X, 0, 1)
+    applySensitivity(MIN_MULT + t * (MAX_MULT - MIN_MULT))
 end
 
-local function sliderBegan(input)
+local function began(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
@@ -248,9 +244,9 @@ local function sliderBegan(input)
     end
 end
 
-track.InputBegan:Connect(sliderBegan)
-knob.InputBegan:Connect(sliderBegan)
-fill.InputBegan:Connect(sliderBegan)
+track.InputBegan:Connect(began)
+knob.InputBegan:Connect(began)
+fill.InputBegan:Connect(began)
 
 UserInputService.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
@@ -270,9 +266,7 @@ resetBtn.MouseButton1Click:Connect(function()
     applySensitivity(1.0)
 end)
 
--- ============================================================
--- PANEL DRAGGING
--- ============================================================
+-- Panel drag
 local draggingPanel = false
 local dragStart, startPos
 
@@ -303,4 +297,4 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-print("[CamSpeed] Loaded. Tap the ⚙ button to open.")
+print("[CamSpeed] Loaded - direct rotation mode")
