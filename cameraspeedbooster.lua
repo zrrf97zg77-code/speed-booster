@@ -1,5 +1,4 @@
--- Mobile Camera Speed Slider GUI (Direct Camera Method)
--- Works even when UserSettings is blocked
+-- Mobile Camera Speed Slider GUI (smooth BindToRenderStep method)
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -7,9 +6,10 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local camera = workspace.CurrentCamera
 
 -- ============================================================
--- GUI SETUP
+-- GUI SETUP (unchanged)
 -- ============================================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "CamSpeed_" .. math.random(1, 999999)
@@ -24,7 +24,6 @@ end)
 
 screenGui.Parent = playerGui
 
--- Toggle button
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, 50, 0, 50)
 toggleBtn.Position = UDim2.new(0, 20, 0.4, 0)
@@ -38,17 +37,12 @@ toggleBtn.BorderSizePixel = 0
 toggleBtn.Active = true
 toggleBtn.Parent = screenGui
 
-local tc = Instance.new("UICorner")
-tc.CornerRadius = UDim.new(1, 0)
-tc.Parent = toggleBtn
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
+local tstroke = Instance.new("UIStroke", toggleBtn)
+tstroke.Color = Color3.fromRGB(80, 180, 255)
+tstroke.Thickness = 2
+tstroke.Transparency = 0.3
 
-local ts = Instance.new("UIStroke")
-ts.Color = Color3.fromRGB(80, 180, 255)
-ts.Thickness = 2
-ts.Transparency = 0.3
-ts.Parent = toggleBtn
-
--- Panel
 local panel = Instance.new("Frame")
 panel.Size = UDim2.new(0, 260, 0, 150)
 panel.Position = UDim2.new(0.5, -130, 0, 60)
@@ -59,17 +53,12 @@ panel.Active = true
 panel.Visible = false
 panel.Parent = screenGui
 
-local pc = Instance.new("UICorner")
-pc.CornerRadius = UDim.new(0, 10)
-pc.Parent = panel
+Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 10)
+local pstroke = Instance.new("UIStroke", panel)
+pstroke.Color = Color3.fromRGB(80, 180, 255)
+pstroke.Thickness = 2
+pstroke.Transparency = 0.3
 
-local ps = Instance.new("UIStroke")
-ps.Color = Color3.fromRGB(80, 180, 255)
-ps.Thickness = 2
-ps.Transparency = 0.3
-ps.Parent = panel
-
--- Title
 local title = Instance.new("TextLabel")
 title.Text = "Camera Speed"
 title.Size = UDim2.new(1, 0, 0, 30)
@@ -80,7 +69,6 @@ title.TextScaled = true
 title.Font = Enum.Font.GothamBold
 title.Parent = panel
 
--- Value label
 local valueLabel = Instance.new("TextLabel")
 valueLabel.Text = "1.0x"
 valueLabel.Size = UDim2.new(1, 0, 0, 24)
@@ -91,30 +79,21 @@ valueLabel.TextScaled = true
 valueLabel.Font = Enum.Font.GothamBold
 valueLabel.Parent = panel
 
--- Track
 local track = Instance.new("Frame")
 track.Size = UDim2.new(1, -40, 0, 10)
 track.Position = UDim2.new(0, 20, 0, 78)
 track.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
 track.BorderSizePixel = 0
 track.Parent = panel
+Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
 
-local trc = Instance.new("UICorner")
-trc.CornerRadius = UDim.new(1, 0)
-trc.Parent = track
-
--- Fill
 local fill = Instance.new("Frame")
 fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
 fill.BorderSizePixel = 0
 fill.Parent = track
+Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
 
-local fc = Instance.new("UICorner")
-fc.CornerRadius = UDim.new(1, 0)
-fc.Parent = fill
-
--- Knob
 local knob = Instance.new("Frame")
 knob.Size = UDim2.new(0, 22, 0, 22)
 knob.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -122,17 +101,11 @@ knob.Position = UDim2.new(0, 0, 0.5, 0)
 knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 knob.BorderSizePixel = 0
 knob.Parent = track
+Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+local kstroke = Instance.new("UIStroke", knob)
+kstroke.Color = Color3.fromRGB(80, 180, 255)
+kstroke.Thickness = 2
 
-local kc = Instance.new("UICorner")
-kc.CornerRadius = UDim.new(1, 0)
-kc.Parent = knob
-
-local ks = Instance.new("UIStroke")
-ks.Color = Color3.fromRGB(80, 180, 255)
-ks.Thickness = 2
-ks.Parent = knob
-
--- Range labels
 local minL = Instance.new("TextLabel")
 minL.Text = "1x"
 minL.Size = UDim2.new(0, 40, 0, 20)
@@ -153,7 +126,6 @@ maxL.TextScaled = true
 maxL.Font = Enum.Font.Gotham
 maxL.Parent = panel
 
--- Reset
 local resetBtn = Instance.new("TextButton")
 resetBtn.Text = "Reset"
 resetBtn.Size = UDim2.new(0, 80, 0, 26)
@@ -164,22 +136,19 @@ resetBtn.TextScaled = true
 resetBtn.Font = Enum.Font.GothamBold
 resetBtn.BorderSizePixel = 0
 resetBtn.Parent = panel
+Instance.new("UICorner", resetBtn).CornerRadius = UDim.new(0, 6)
 
-local rc = Instance.new("UICorner")
-rc.CornerRadius = UDim.new(0, 6)
-rc.Parent = resetBtn
-
--- Toggle
 toggleBtn.MouseButton1Click:Connect(function()
     panel.Visible = not panel.Visible
 end)
 
 -- ============================================================
--- CAMERA BOOST - DIRECT ROTATION
+-- CAMERA — SMOOTH METHOD
 -- ============================================================
 local MIN_MULT = 1.0
 local MAX_MULT = 5.0
 local currentMult = 1.0
+local BASE_SENS = 0.0035 -- baseline sensitivity per pixel
 
 local function applySensitivity(mult)
     currentMult = mult
@@ -191,36 +160,103 @@ end
 
 applySensitivity(1.0)
 
--- Hook camera rotation directly
--- We listen for the raw mouse/touch delta and multiply the camera rotation
-local cam = workspace.CurrentCamera
+-- Target angles we accumulate ourselves
+local targetYaw = 0
+local targetPitch = 0
+local currentYaw = 0
+local currentPitch = 0
+local initialized = false
 
-UserInputService.InputChanged:Connect(function(input)
-    if currentMult <= 1.01 then return end
+-- Track which touches started on the right half (camera zone)
+local cameraTouches = {}
 
-    local isMouse = input.UserInputType == Enum.UserInputType.MouseMovement
-    local isTouch = input.UserInputType == Enum.UserInputType.Touch
+local function setupCamera()
+    local cam = workspace.CurrentCamera
+    if not cam then return end
 
-    if isMouse or isTouch then
-        local delta = input.Delta
-        if delta.Magnitude < 0.5 then return end
+    -- Get current yaw/pitch from CFrame
+    local look = cam.CFrame.LookVector
+    targetYaw = math.atan2(-look.X, -look.Z)
+    targetPitch = math.asin(math.clamp(look.Y, -1, 1))
+    currentYaw = targetYaw
+    currentPitch = targetPitch
+    initialized = true
+end
 
-        -- Extra rotation on top of what the game already applies
-        -- Wait a frame so the game's own rotation happens first
-        RunService.RenderStepped:Wait()
+setupCamera()
 
+-- Wait for camera to exist
+if not workspace.CurrentCamera then
+    workspace:GetPropertyChangedSignal("CurrentCamera"):Wait()
+    setupCamera()
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
         local cam = workspace.CurrentCamera
-        if cam then
-            local extra = (currentMult - 1.0)
-            local rotY = math.rad(-delta.X * extra * 0.25)
-            local rotX = math.rad(-delta.Y * extra * 0.25)
-
-            local cf = cam.CFrame
-            cf = cf * CFrame.Angles(0, rotY, 0)
-            cf = cf * CFrame.Angles(rotX, 0, 0)
-            cam.CFrame = cf
+        if cam and input.Position.X > cam.ViewportSize.X / 2 then
+            cameraTouches[input] = true
         end
     end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        cameraTouches[input] = nil
+    end
+end)
+
+-- Accumulate target rotation when user drags
+UserInputService.InputChanged:Connect(function(input)
+    if not initialized then return end
+    if currentMult <= 1.01 then return end
+
+    local delta = input.Delta
+    if delta.Magnitude < 0.1 then return end
+
+    local isCameraTouch = false
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        isCameraTouch = true
+    elseif input.UserInputType == Enum.UserInputType.Touch then
+        isCameraTouch = cameraTouches[input] == true
+    end
+
+    if not isCameraTouch then return end
+
+    local sens = BASE_SENS * currentMult
+    targetYaw = targetYaw - delta.X * sens
+    targetPitch = math.clamp(targetPitch - delta.Y * sens, -math.rad(85), math.rad(85))
+end)
+
+-- Smoothly interpolate camera toward target every render step
+-- Using high priority so we run AFTER the game's camera update
+RunService:BindToRenderStep("CamSpeedBoost", Enum.RenderPriority.Camera.Value + 1, function(dt)
+    if not initialized then return end
+    if currentMult <= 1.01 then
+        -- Keep our internal state synced with the game's camera
+        local cam = workspace.CurrentCamera
+        if cam then
+            local look = cam.CFrame.LookVector
+            targetYaw = math.atan2(-look.X, -look.Z)
+            targetPitch = math.asin(math.clamp(look.Y, -1, 1))
+            currentYaw = targetYaw
+            currentPitch = targetPitch
+        end
+        return
+    end
+
+    local cam = workspace.CurrentCamera
+    if not cam then return end
+
+    -- Smooth lerp toward target
+    local alpha = math.clamp(dt * 20, 0, 1)
+    currentYaw = currentYaw + (targetYaw - currentYaw) * alpha
+    currentPitch = currentPitch + (targetPitch - currentPitch) * alpha
+
+    local pos = cam.CFrame.Position
+    local newCF = CFrame.new(pos) * CFrame.Angles(0, currentYaw, 0) * CFrame.Angles(currentPitch, 0, 0)
+    cam.CFrame = newCF
 end)
 
 -- ============================================================
@@ -264,9 +300,17 @@ end)
 
 resetBtn.MouseButton1Click:Connect(function()
     applySensitivity(1.0)
+    -- Sync target back to game camera
+    local cam = workspace.CurrentCamera
+    if cam then
+        local look = cam.CFrame.LookVector
+        targetYaw = math.atan2(-look.X, -look.Z)
+        targetPitch = math.asin(math.clamp(look.Y, -1, 1))
+        currentYaw = targetYaw
+        currentPitch = targetPitch
+    end
 end)
 
--- Panel drag
 local draggingPanel = false
 local dragStart, startPos
 
@@ -297,4 +341,4 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-print("[CamSpeed] Loaded - direct rotation mode")
+print("[CamSpeed] Loaded - smooth mode")
